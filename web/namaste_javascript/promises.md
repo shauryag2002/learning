@@ -138,3 +138,50 @@ createOrder(cart)
         console.log("Show generic order/support page");
     });
 ```
+
+---
+
+# Promise APIs (Combinators)
+
+Used to handle multiple concurrent promises together.
+
+### Comparison Summary:
+| Method | Waits For | Output on Success | Output on Failure |
+| :--- | :--- | :--- | :--- |
+| **`Promise.all`** | All promises to resolve | Array of all results `[r1, r2, r3]` | Fails fast with the **first error** |
+| **`Promise.allSettled`** | All promises to finish (settle) | Array of result objects with status | **Never rejects** (gives both successes & failures) |
+| **`Promise.race`** | The very first promise to settle | First result (if it resolves first) | First error (if it rejects first) |
+| **`Promise.any`** | The very first **success** | First resolved value | Rejects only if **all fail** (`AggregateError`) |
+
+---
+
+# Async await
+
+## what is async function ?
+
+if we put a async keyword in a normal function
+Then:
+- Function always returns a promise.
+
+```javascript
+async function createOrder() {
+    return new Promise((resolve, reject) => {
+        resolve("Order created successfully");
+    });
+}
+```
+
+OR
+
+```jsx
+async function createOrder() {
+    return "Order created successfully";
+}
+```
+
+## what is await keyword ?
+
+async and await are used to handle promises.
+
+Await is a keyword that can only be used inside a async function.
+
