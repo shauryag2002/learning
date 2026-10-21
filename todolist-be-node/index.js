@@ -1,31 +1,84 @@
 const express = require("express");
 const fs = require("fs/promises");
 const app = express();
+const z = require("zod")
+const jwt = require("jsonwebtoken")
+const { loadEnvFile } = require('node:process');
+loadEnvFile('.env');
 const fileName = "todo-local-db.txt"
-const bodyParser = require("body-parser")
+// const bodyParser = require("body-parser")
 
-app.use(bodyParser.json())
+const todos = [];
+// const todosSchema = z.array({
+//     id: z.string,
+//     todo: z.string,
+//     completed: z.boolean
+// })
+const todoSchema = z.array(z.object({
+    // id: z.string(),
+    todo: z.string(),
+    // completed: z.boolean()
+}))
+
+const users = [];
+
+// app.use(bodyParser.json())
+app.use(express.json())
 
 app.get("/", async (req, res) => {
-    const data = await fs.readFile('todo-local-db.txt', 'utf-8');
-    if (data) {
-        res.send(data)
-    } else {
-        res.send("<i>hiiii</i>");
-    }
+    res.json(todos)
 })
 
 app.post("/new", async (req, res) => {
-    const data = req.body?.data;
-    console.log(data, req.body)
+    const data = req.body.data;
+    console.log(req.body)
+    if (!data) {
+        res.status(404).send("data not found")
+        return
+    }
     try {
-        await fs.appendFile(fileName, `${data}\n`, 'utf-8');
-        res.send(data)
+        const result = todoSchema.safeParse(data)
+        // res.send(result)
+        res.json(JSON.parse(result.error.message))
     } catch {
         res.status(404).send("opps")
     }
 })
 
-app.listen(3000, () => {
+const userExists = (userName, password) => {
+    if (users[userName] === password) {
+        return false
+    }
+    return true
+}
+
+app.post("/signin", (req, res) => {
+    const userName = req.body.userName;
+    const password = req.body.password;
+    if (!userExists(userName, password)) {
+        res.status(401).json({ data: "user does not exists", jwtToken: null })
+        return
+    }
+
+    const jwtToken = jwt.sign({ userName }, process.env.JWT_SECRET, { expiresIn: "1d" })
+    console.log(jwtToken)
+    users.push({ userName, password })
+    res.json({ jwtToken })
+})
+
+app.get("/users", (req, res) => {
+    const authorizationToken = req.headers["authorization"];
+    try {
+        jwt.verify(authorizationToken, process.env.JWT_SECRET);
+        console.log(jwt.decode(authorizationToken))
+        res.json({ users })
+    } catch (err) {
+        console.log(err);
+        res.status(401).json({ error: true, message: "unauthorized" });
+        return;
+    }
+})
+
+app.listen(3200, () => {
     console.log("trying so hard on 3000")
 })
