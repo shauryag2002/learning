@@ -4,6 +4,7 @@ const app = express();
 const z = require("zod")
 const jwt = require("jsonwebtoken")
 const { loadEnvFile } = require('node:process');
+const mongoose = require("mongoose")
 loadEnvFile('.env');
 const fileName = "todo-local-db.txt"
 // const bodyParser = require("body-parser")
@@ -45,6 +46,25 @@ app.post("/new", async (req, res) => {
     }
 })
 
+mongoose.connect(process.env.MONGO_SERVER_URL).then((onfulfilled) => {
+    console.log("connected to mongo db")
+}).catch((onrejected) => {
+    console.log(onrejected)
+})
+
+// const Users = new mongoose.Schema({
+//     userName: String,
+//     password: String,
+//     name: String
+// })
+const dbUser = mongoose.model("users/Users",
+    {
+        userName: String,
+        password: String,
+        name: String
+    }
+);
+
 const userExists = (userName, password) => {
     if (users[userName] === password) {
         return false
@@ -62,8 +82,19 @@ app.post("/signin", (req, res) => {
 
     const jwtToken = jwt.sign({ userName }, process.env.JWT_SECRET, { expiresIn: "1d" })
     console.log(jwtToken)
-    users.push({ userName, password })
-    res.json({ jwtToken })
+    // users.push({ userName, password })
+    const user = new dbUser({
+        userName: userName,
+        password: password,
+        name: req.body.name
+    })
+    user.save().then(() => {
+        console.log("user saved")
+        res.json({ jwtToken })
+    }).catch((onrejected) => {
+        console.log(onrejected)
+        res.json({ jwtToken: null, message: "user not saved" })
+    })
 })
 
 app.get("/users", (req, res) => {
@@ -71,7 +102,12 @@ app.get("/users", (req, res) => {
     try {
         jwt.verify(authorizationToken, process.env.JWT_SECRET);
         console.log(jwt.decode(authorizationToken))
-        res.json({ users })
+        dbUser.find({ userName: jwt.decode(authorizationToken).userName }).then((onfulfilled) => {
+            console.log("users found")
+            res.json({ users: onfulfilled })
+        }).catch((onrejected) => {
+            console.log(onrejected)
+        })
     } catch (err) {
         console.log(err);
         res.status(401).json({ error: true, message: "unauthorized" });
