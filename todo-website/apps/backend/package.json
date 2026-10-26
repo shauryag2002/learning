@@ -11,11 +11,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@repo/types": "*",
     "express": "^5.3.0",
     "nodemon": "^3.1.14"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
+    "cors": "^2.8.6",
     "tsx": "^4.23.15"
   }
 }

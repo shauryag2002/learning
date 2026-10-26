@@ -1,13 +1,11 @@
 import express from "express";
+import cors from "cors";
+import { Todo } from '@repo/types';
 
 const app = express();
-app.use(express.json())
 
-interface Todo {
-    name: string;
-    isCompleted: boolean;
-    id: string;
-}
+app.use(cors())
+app.use(express.json())
 
 const todos: Todo[] = [
     // example:
