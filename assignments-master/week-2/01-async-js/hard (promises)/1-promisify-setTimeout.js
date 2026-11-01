@@ -3,6 +3,12 @@
 */
 
 function wait(n) {
+    const promise = new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve(undefined);
+        }, n * 1000);
+    })
+    return promise;
 }
 
 module.exports = wait;
