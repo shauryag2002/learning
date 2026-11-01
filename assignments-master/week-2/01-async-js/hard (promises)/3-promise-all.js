@@ -8,7 +8,7 @@ function wait1(t) {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
             resolve(t)
-        }, t)
+        }, t * 1000)
     })
 }
 
@@ -16,7 +16,7 @@ function wait2(t) {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
             resolve(t)
-        }, t)
+        }, t * 1000)
     })
 }
 
@@ -24,17 +24,16 @@ function wait3(t) {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
             resolve(t)
-        }, t)
+        }, t * 1000)
     })
 }
 // explain me how to fix this calculateTime function
 
 function calculateTime(t1, t2, t3) {
+    const start = Date.now();
     return Promise.all([wait1(t1), wait2(t2), wait3(t3)]).then((result) => {
-        result.sort((a, b) => {
-            return a - b
-        })
-        return result[result.length - 1] * 1000
+        const end = Date.now();
+        return end - start;
     })
 }
 
