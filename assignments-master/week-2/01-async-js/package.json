@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "This folder contains assignments related to asynchronous JavaScript.",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "1-promisify-setTimeout": "npx jest ./tests/1-promisify-setTimeout.test.js",
     "2-sleep-completely": "npx jest ./tests/2-sleep-completely.test.js",
